@@ -5,3 +5,6 @@ payload:
   - 'openaicomproductionae4b.blob.core.windows.net'
   - 'production-openaicom-storage.azureedge.net'
   - '+.openai.com'
+  - '+.auth0.com'
+  - '+.bing.com'
+  - '+.live.com'
