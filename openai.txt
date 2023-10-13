@@ -7,4 +7,3 @@ payload:
   - '+.openai.com'
   - '+.auth0.com'
   - '+.bing.com'
-  - '+.live.com'
