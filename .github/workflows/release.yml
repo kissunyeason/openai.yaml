@@ -17,9 +17,9 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Set up Node.js
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v2.4.0
       with:
-        node-version: '14'
+        node-version: '16'
 
     - name: Install dependencies
       run: npm install
@@ -28,18 +28,18 @@ jobs:
       id: file_changes
       run: |
         if git diff-tree --name-only HEAD^ HEAD | grep -q 'openai.txt'; then
-          echo "::set-output name=changed::true"
+          echo "changed=true" >> $GITHUB_ENV
         else
-          echo "::set-output name=changed::false"
+          echo "changed=false" >> $GITHUB_ENV
         fi
 
     - name: Create release
       id: create_release
-      if: ${{ needs.file_changes.outputs.changed == 'true' }}
+      if: env.changed == 'true'
       run: |
         echo "Creating release..."
         tag_name=$(date +'%Y%m%d%H%M%S')
-        echo "::set-output name=tag_name::$tag_name"
+        echo "tag_name=$tag_name" >> $GITHUB_ENV
         # Add your release creation logic here
 
         echo "Uploading openai.txt..."
@@ -47,15 +47,15 @@ jobs:
           --url "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create_release.outputs.id }}/assets?name=openai.txt" \
           --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
           --header "Content-Type: text/plain" \
-          --data-binary "@../openai.txt" \
+          --data-binary "@openai.txt" \
           --silent \
           --location | jq -r '.url')
 
-        echo "::set-output name=upload_url::$upload_url"
+        echo "upload_url=$upload_url" >> $GITHUB_ENV
 
     - name: Publish release
       id: publish_release
-      if: ${{ needs.create_release.outputs.tag_name != '' }}
+      if: env.tag_name != ''
       run: |
         echo "Publishing release..."
         # Add your release publishing logic here
