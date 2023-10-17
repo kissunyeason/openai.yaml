@@ -47,7 +47,7 @@ jobs:
           --url "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create_release.outputs.id }}/assets?name=openai.txt" \
           --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
           --header "Content-Type: text/plain" \
-          --data-binary "@openai.txt" \
+          --data-binary "@../openai.txt" \
           --silent \
           --location | jq -r '.url')
 
