@@ -38,18 +38,20 @@ jobs:
       if: ${{ needs.file_changes.outputs.changed == 'true' }}
       run: |
         echo "Creating release..."
+        tag_name=$(date +'%Y%m%d%H%M%S')
+        echo "::set-output name=tag_name::$tag_name"
         # Add your release creation logic here
 
     - name: Upload artifact
       id: upload_artifact
-      if: ${{ needs.file_changes.outputs.changed == 'true' }}
+      if: ${{ needs.create_release.outputs.tag_name != '' }}
       run: |
         echo "Uploading artifact..."
         # Add your artifact upload logic here
 
     - name: Publish release
       id: publish_release
-      if: ${{ needs.file_changes.outputs.changed == 'true' }}
+      if: ${{ needs.upload_artifact.outputs.uploaded == 'true' }}
       run: |
         echo "Publishing release..."
         # Add your release publishing logic here
