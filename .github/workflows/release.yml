@@ -35,7 +35,6 @@ jobs:
 
     - name: Create release
       id: create_release
-      needs: [file_changes]
       if: ${{ needs.file_changes.outputs.changed == 'true' }}
       run: |
         echo "Creating release..."
@@ -43,7 +42,6 @@ jobs:
 
     - name: Upload artifact
       id: upload_artifact
-      needs: [create_release]
       if: ${{ needs.file_changes.outputs.changed == 'true' }}
       run: |
         echo "Uploading artifact..."
@@ -51,7 +49,6 @@ jobs:
 
     - name: Publish release
       id: publish_release
-      needs: [upload_artifact]
       if: ${{ needs.file_changes.outputs.changed == 'true' }}
       run: |
         echo "Publishing release..."
