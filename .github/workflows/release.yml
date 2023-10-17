@@ -1,35 +1,58 @@
-name: Create Release
+name: Release on File Change
 
 on:
   push:
-    paths:
-      - 'openai.txt'
+    branches:
+      - main
+  workflow_dispatch:
+  repository_dispatch:
+    types: [file-changed]
 
 jobs:
-  release:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.openai }}
-        with:
-          tag_name: ${{ github.sha }}
-          release_name: Release ${{ github.run_id }}
-          draft: false
-          prerelease: false
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
 
-      - name: Upload Release Asset
-        id: upload-release-asset 
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./openai.txt
-          asset_name: openai.txt
-          asset_content_type: text/plain
+    - name: Install dependencies
+      run: npm install
+
+    - name: Check for file changes
+      id: file_changes
+      run: |
+        if git diff-tree --name-only HEAD^ HEAD | grep -q 'openai.txt'; then
+          echo "::set-output name=changed::true"
+        else
+          echo "::set-output name=changed::false"
+        fi
+
+    - name: Create release
+      id: create_release
+      needs: [file_changes]
+      if: ${{ needs.file_changes.outputs.changed == 'true' }}
+      run: |
+        echo "Creating release..."
+        # Add your release creation logic here
+
+    - name: Upload artifact
+      id: upload_artifact
+      needs: [create_release]
+      if: ${{ needs.file_changes.outputs.changed == 'true' }}
+      run: |
+        echo "Uploading artifact..."
+        # Add your artifact upload logic here
+
+    - name: Publish release
+      id: publish_release
+      needs: [upload_artifact]
+      if: ${{ needs.file_changes.outputs.changed == 'true' }}
+      run: |
+        echo "Publishing release..."
+        # Add your release publishing logic here
