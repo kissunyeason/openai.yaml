@@ -42,16 +42,20 @@ jobs:
         echo "::set-output name=tag_name::$tag_name"
         # Add your release creation logic here
 
-    - name: Upload artifact
-      id: upload_artifact
-      if: ${{ needs.create_release.outputs.tag_name != '' }}
-      run: |
-        echo "Uploading artifact..."
-        # Add your artifact upload logic here
+        echo "Uploading openai.txt..."
+        upload_url=$(curl --request POST \
+          --url "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create_release.outputs.id }}/assets?name=openai.txt" \
+          --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          --header "Content-Type: text/plain" \
+          --data-binary "@openai.txt" \
+          --silent \
+          --location | jq -r '.url')
+
+        echo "::set-output name=upload_url::$upload_url"
 
     - name: Publish release
       id: publish_release
-      if: ${{ needs.upload_artifact.outputs.uploaded == 'true' }}
+      if: ${{ needs.create_release.outputs.tag_name != '' }}
       run: |
         echo "Publishing release..."
         # Add your release publishing logic here
