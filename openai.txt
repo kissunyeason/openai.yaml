@@ -9,3 +9,4 @@ payload:
   - '+.bing.com'
   - '+.live.com'
   - '+.live.com'
+  - 'copilot.microsoft.com'
